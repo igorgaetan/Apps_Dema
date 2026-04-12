@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Demo – API Produits</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            color: #38bdf8;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 28px;
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1100px; margin: 0 auto; }
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        .card h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+        .get    { background: #14532d; color: #4ade80; }
+        .post   { background: #1e3a5f; color: #38bdf8; }
+        .put    { background: #451a03; color: #fb923c; }
+        .delete { background: #450a0a; color: #f87171; }
+
+        .url-bar {
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            background: #0f172a;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        input::placeholder { color: #475569; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: opacity 0.15s;
+        }
+        button:hover { opacity: 0.85; }
+        .btn-get    { background: #166534; color: #dcfce7; }
+        .btn-post   { background: #1d4ed8; color: #dbeafe; }
+        .btn-put    { background: #92400e; color: #fef3c7; }
+        .btn-delete { background: #991b1b; color: #fee2e2; }
+
+        .response-box {
+            margin-top: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.78rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+            white-space: pre-wrap;
+        }
+        .status-ok   { color: #4ade80; }
+        .status-err  { color: #f87171; }
+        .status-info { color: #94a3b8; }
+
+        .concepts {
+            max-width: 1100px;
+            margin: 24px auto 0;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        .concepts h3 { color: #38bdf8; margin-bottom: 12px; font-size: 0.95rem; }
+        .concepts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .concept-item {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #38bdf8;
+        }
+        .concept-item .label { color: #38bdf8; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+        .concept-item .value { color: #94a3b8; font-size: 0.75rem; }
+
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; }
+            .concepts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>🚀 DevOps Demo – API REST Java</h1>
+<p class="subtitle">Front : port 5500 &nbsp;→&nbsp; Back Spring Boot : port 8080 &nbsp;→&nbsp; PostgreSQL : port 5432</p>
+
+<div class="grid">
+
+    <!-- GET ALL -->
+    <div class="card">
+        <h2><span class="badge get">GET</span> Lister tous les produits</h2>
+        <div class="url-bar">GET http://localhost:8080/api/produits</div>
+        <button class="btn-get" onclick="getAll()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-getall"><span class="status-info">En attente...</span></div>
+    </div>
+
+    <!-- GET BY ID -->
+    <div class="card">
+        <h2><span class="badge get">GET</span> Trouver par ID</h2>
+        <div class="url-bar">GET http://localhost:8080/api/produits/{id}</div>
+        <input type="number" id="get-id" placeholder="ID du produit (ex: 1)" min="1">
+        <button class="btn-get" onclick="getById()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-getid"><span class="status-info">En attente...</span></div>
+    </div>
+
+    <!-- POST -->
+    <div class="card">
+        <h2><span class="badge post">POST</span> Créer un produit</h2>
+        <div class="url-bar">POST http://localhost:8080/api/produits</div>
+        <input type="text"   id="post-nom"      placeholder="Nom (ex: Webcam HD)">
+        <input type="number" id="post-prix"     placeholder="Prix (ex: 59.99)" step="0.01">
+        <input type="number" id="post-quantite" placeholder="Quantité (ex: 20)">
+        <button class="btn-post" onclick="createProduit()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-post"><span class="status-info">En attente...</span></div>
+    </div>
+
+    <!-- PUT -->
+    <div class="card">
+        <h2><span class="badge put">PUT</span> Modifier un produit</h2>
+        <div class="url-bar">PUT http://localhost:8080/api/produits/{id}</div>
+        <input type="number" id="put-id"       placeholder="ID à modifier (ex: 1)">
+        <input type="text"   id="put-nom"      placeholder="Nouveau nom">
+        <input type="number" id="put-prix"     placeholder="Nouveau prix" step="0.01">
+        <input type="number" id="put-quantite" placeholder="Nouvelle quantité">
+        <button class="btn-put" onclick="updateProduit()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-put"><span class="status-info">En attente...</span></div>
+    </div>
+
+    <!-- DELETE -->
+    <div class="card">
+        <h2><span class="badge delete">DELETE</span> Supprimer un produit</h2>
+        <div class="url-bar">DELETE http://localhost:8080/api/produits/{id}</div>
+        <input type="number" id="delete-id" placeholder="ID à supprimer (ex: 1)">
+        <button class="btn-delete" onclick="deleteProduit()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-delete"><span class="status-info">En attente...</span></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="card">
+        <h2><span class="badge get">GET</span> Rechercher par nom</h2>
+        <div class="url-bar">GET http://localhost:8080/api/produits/search?q=...</div>
+        <input type="text" id="search-q" placeholder="Mot-clé (ex: laptop)">
+        <button class="btn-get" onclick="searchProduits()">▶ Envoyer la requête</button>
+        <div class="response-box" id="res-search"><span class="status-info">En attente...</span></div>
+    </div>
+
+</div>
+
+<!-- Concepts DevOps -->
+<div class="concepts">
+    <h3>🎓 Concepts DevOps illustrés dans ce projet</h3>
+    <div class="concepts-grid">
+        <div class="concept-item">
+            <div class="label">Ports réseau</div>
+            <div class="value">Front :5500 | API :8080 | BD :5432 – chaque service a son propre port</div>
+        </div>
+        <div class="concept-item">
+            <div class="label">API REST</div>
+            <div class="value">Interface standardisée entre services. Les méthodes HTTP encodent l'intention (GET=lire, POST=créer…)</div>
+        </div>
+        <div class="concept-item">
+            <div class="label">CORS</div>
+            <div class="value">Sécurité navigateur : un front ne peut pas appeler un back sur un autre port sans autorisation explicite</div>
+        </div>
+        <div class="concept-item">
+            <div class="label">Codes HTTP</div>
+            <div class="value">200 OK, 201 Created, 204 No Content, 404 Not Found, 400 Bad Request</div>
+        </div>
+        <div class="concept-item">
+            <div class="label">JSON</div>
+            <div class="value">Format d'échange universel entre services. Spring Boot sérialise/désérialise automatiquement</div>
+        </div>
+        <div class="concept-item">
+            <div class="label">Architecture 3 tiers</div>
+            <div class="value">Présentation (HTML) → Logique métier (Java) → Données (PostgreSQL)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = 'http://localhost:8080/api/produits';
+
+    function display(id, data, isError = false) {
+        const el = document.getElementById(id);
+        const text = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        el.innerHTML = `<span class="${isError ? 'status-err' : 'status-ok'}">${text}</span>`;
+    }
+
+    async function getAll() {
+        try {
+            const res = await fetch(BASE_URL);
+            display('res-getall', `HTTP ${res.status}\n\n` + JSON.stringify(await res.json(), null, 2));
+        } catch (e) { display('res-getall', '❌ Erreur : ' + e.message, true); }
+    }
+
+    async function getById() {
+        const id = document.getElementById('get-id').value;
+        if (!id) return display('res-getid', '⚠️ Entrez un ID', true);
+        try {
+            const res = await fetch(`${BASE_URL}/${id}`);
+            const body = res.status === 404 ? '404 – Produit non trouvé' : JSON.stringify(await res.json(), null, 2);
+            display('res-getid', `HTTP ${res.status}\n\n${body}`, res.status >= 400);
+        } catch (e) { display('res-getid', '❌ Erreur : ' + e.message, true); }
+    }
+
+    async function createProduit() {
+        const nom = document.getElementById('post-nom').value;
+        const prix = parseFloat(document.getElementById('post-prix').value);
+        const quantite = parseInt(document.getElementById('post-quantite').value);
+        if (!nom || isNaN(prix) || isNaN(quantite)) return display('res-post', '⚠️ Remplissez tous les champs', true);
+        try {
+            const res = await fetch(BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, prix, quantite })
+            });
+            display('res-post', `HTTP ${res.status}\n\n` + JSON.stringify(await res.json(), null, 2), res.status >= 400);
+        } catch (e) { display('res-post', '❌ Erreur : ' + e.message, true); }
+    }
+
+    async function updateProduit() {
+        const id = document.getElementById('put-id').value;
+        const nom = document.getElementById('put-nom').value;
+        const prix = parseFloat(document.getElementById('put-prix').value);
+        const quantite = parseInt(document.getElementById('put-quantite').value);
+        if (!id || !nom || isNaN(prix) || isNaN(quantite)) return display('res-put', '⚠️ Remplissez tous les champs', true);
+        try {
+            const res = await fetch(`${BASE_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, prix, quantite })
+            });
+            const body = res.status === 404 ? '404 – Produit non trouvé' : JSON.stringify(await res.json(), null, 2);
+            display('res-put', `HTTP ${res.status}\n\n${body}`, res.status >= 400);
+        } catch (e) { display('res-put', '❌ Erreur : ' + e.message, true); }
+    }
+
+    async function deleteProduit() {
+        const id = document.getElementById('delete-id').value;
+        if (!id) return display('res-delete', '⚠️ Entrez un ID', true);
+        try {
+            const res = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+            display('res-delete', `HTTP ${res.status}\n\n${res.status === 204 ? '✅ Produit supprimé avec succès' : '404 – Produit non trouvé'}`, res.status >= 400);
+        } catch (e) { display('res-delete', '❌ Erreur : ' + e.message, true); }
+    }
+
+    async function searchProduits() {
+        const q = document.getElementById('search-q').value;
+        if (!q) return display('res-search', '⚠️ Entrez un mot-clé', true);
+        try {
+            const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(q)}`);
+            display('res-search', `HTTP ${res.status}\n\n` + JSON.stringify(await res.json(), null, 2));
+        } catch (e) { display('res-search', '❌ Erreur : ' + e.message, true); }
+    }
+</script>
+</body>
+</html>

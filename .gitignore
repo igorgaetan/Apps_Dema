@@ -1,0 +1,8 @@
+# Fichier .gitignore
+.gradle/
+build/
+target/
+.sonar/
+.idea/
+*.class
+*.log
