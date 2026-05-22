@@ -11,6 +11,8 @@ Projet pédagogique pour illustrer les notions de **ports**, **API REST**, et **
 └─────────────────┘                    └──────────────────┘                   └─────────────────┘
 ```
 
+
+
 ### 📋 Prérequis
 - **Java 17+**
 - **Maven 3.8+**
