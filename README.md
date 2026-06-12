@@ -1,4 +1,4 @@
-## 🚀 DevOps Demo – API REST Java + H2 (In-Memory)
+## 🚀 DevOps Demo – API REST Java + H2
 
 Projet pédagogique pour illustrer les notions de **ports**, **API REST**, et **cycle de vie d'une application**.
 
